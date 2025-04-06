@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './App.css';
 
 let computerFirstMove = null;
+let winner = null;
 
 function LetComputerFirstMove({squares, setSquares, currentPlayer, setCurrentPlayer}) {
   function handleClick(){
@@ -63,10 +64,9 @@ function Tictactoe_board({squares, setSquares, currentPlayer, setCurrentPlayer})
         throw new Error('Network response was not ok');
       }
 
-      // const data = await response.json();
-      // setSquares(data.board);
-      // setCurrentPlayer(data.currentPlayer)
-      // console.log('Move made:', data);
+      const data = await response.json();
+      setSquares(data.board);
+      setCurrentPlayer(data.player)
 
     } catch (error) {
       console.error('Error:', error);

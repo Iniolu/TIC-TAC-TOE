@@ -37,7 +37,14 @@ async def move(data: MoveRequest):
     computer_move = "X" if data.computerFirstMove else "O"
     
     if data.player != computer_move:
-        print("It's your turn!")
+        board = data.board.copy()
+        position = data.position
+        player = data.player
+        if position is not None and board[position] is None:
+            board[position] = player
+            player = "X" if player == "O" else "O"
+        else:
+            print("Invalid move. Position already occupied or out of bounds.")
     else: 
         print("Its the computer's turn.")
 
@@ -46,5 +53,7 @@ async def move(data: MoveRequest):
 
     return {
         "receivedData": data.dict(),
-        "message": "Move command received"
+        "message": "Move command received",
+        "board": board,
+        "player": player
     }
