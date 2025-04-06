@@ -1,0 +1,47 @@
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+*.log
+*.db
+*.sqlite3
+
+# FastAPI config files
+.q_table.json
+
+# React
+frontend/node_modules/
+frontend/build/
+frontend/.env
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# IDEs
+.idea/
+*.iml
+*.swp
+
+# Environment
+.env
+.env.*
+
+# Logs
+*.log
+
+# Test cache
+.cache/
+pytest_cache/
+
+# Byte-compiled / optimized / DLL files
+*.so
