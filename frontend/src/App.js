@@ -1,15 +1,24 @@
-import { useState } from 'react';
+import {useState, useEffect } from 'react';
 import './App.css';
 
 let computerFirstMove = null;
-let winner = null;
+
 
 function LetComputerFirstMove({squares, setSquares, currentPlayer, setCurrentPlayer}) {
-  function handleClick(){
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  useEffect(() => {
+    if (squares.some((square) => square === "X" || square === "O")) {
+      setIsDisabled(true);
+    }
+  }, [squares]);
+
+  async function handleClick(){
     computerFirstMove = true;
-    
+    setIsDisabled(true);
+
     try{
-      const response = fetch('http://localhost:8000/move', {
+      const response = await fetch('http://localhost:8000/move', {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
@@ -21,15 +30,21 @@ function LetComputerFirstMove({squares, setSquares, currentPlayer, setCurrentPla
           computerFirstMove: computerFirstMove,
         })
       });
+
+      if (!response.ok){
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      setSquares(data.board);
+      setCurrentPlayer(data.player);
+
     }catch (error) {
       console.error('Error:', error);
     }
 
-
-
   }
   return(
-    <button className='computer-first-move' onClick={handleClick}>
+    <button className='computer-first-move' onClick={handleClick} disabled={isDisabled}>
       Let Computer Make the First Move
       </button>
   )
@@ -41,8 +56,14 @@ function Square({value, onSquareClick}) {
   )
 }
 
+function Winner({winner}) {
+  return(
+    <p className="winner">{winner} WINS</p>
+  )
+}
 
-function Tictactoe_board({squares, setSquares, currentPlayer, setCurrentPlayer}) {  
+
+function TicTacToeBoard({squares, setSquares, currentPlayer, setCurrentPlayer, setWinner}) {  
   async function handleClick(i){
     if (squares[i] !== null) return;
 
@@ -57,7 +78,7 @@ function Tictactoe_board({squares, setSquares, currentPlayer, setCurrentPlayer})
           player: currentPlayer,
           position: i,
           computerFirstMove: computerFirstMove,
-        }),
+        })
       });
 
       if (!response.ok){
@@ -67,10 +88,37 @@ function Tictactoe_board({squares, setSquares, currentPlayer, setCurrentPlayer})
       const data = await response.json();
       setSquares(data.board);
       setCurrentPlayer(data.player)
+      setWinner(data.winner);
 
-    } catch (error) {
+      if (data.winner) return;
+
+      const agentResponse = await fetch('http://localhost:8000/move', {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          board: data.board,
+          player: data.player,
+          position: null,
+          computerFirstMove: computerFirstMove,
+        })
+      });
+
+      if (!agentResponse.ok){
+        throw new Error('Network response was not ok');
+      }
+      const agentData = await agentResponse.json();
+      setSquares(agentData.board);
+      setCurrentPlayer(agentData.player);
+      setWinner(agentData.winner);
+
+
+    }catch (error) {
       console.error('Error:', error);
     }
+
+    
 
   }
   
@@ -102,18 +150,22 @@ function Tictactoe_board({squares, setSquares, currentPlayer, setCurrentPlayer})
 export default function App() {
   const [squares, setSquares] = useState(Array(9).fill(null)); // Track state of squares
   const [currentPlayer, setCurrentPlayer] = useState("X"); // Track whose turn it is
+  const [winner, setWinner] = useState(null); // Track winner
   return (
-    <div className="App">
-      <Tictactoe_board
+    <div className="App"> 
+      <TicTacToeBoard
         squares={squares}
         setSquares={setSquares}
         currentPlayer={currentPlayer}
-        setCurrentPlayer={setCurrentPlayer}/>
+        setCurrentPlayer={setCurrentPlayer}
+        setWinner={setWinner}/>
       <LetComputerFirstMove 
         squares={squares}
         setSquares={setSquares}
         currentPlayer={currentPlayer}
         setCurrentPlayer={setCurrentPlayer}/>
+      <Winner 
+      winner={winner}/>
     </div>
   );
 }

@@ -6,23 +6,23 @@ import os
 from typing import List, Optional
 
 class Agent:
-    def __init__(self, q_table="q_table.json", epsilon=0.2, alpha=0.1, gamma=0.9):
+    def __init__(self, q_table="q_table.json", epsilon=0.9, alpha=0.2, gamma=0.9):
         self.q_table = self.load_q_table(q_table)
         self.epsilon = epsilon # How often to pick a random action
         self.alpha = alpha # Learning rate
         self.gamma = gamma # How important the future reward is
         self.q_table_file = q_table
 
-    def load_q_table(self):
-        if os.path.exists(self.q_table_file):
-            with open(self.q_table_file, "r") as f:
+    def load_q_table(self, q_table_file):
+        if os.path.exists(q_table_file):
+            with open(q_table_file, "r") as f:
                 return json.load(f)
         else:
             return {}
         
     def save_q_table(self):
         with open(self.q_table_file, "w") as f:
-            json.dump(self.q_table_file, f)
+            json.dump(self.q_table, f)
 
     def get_state(self, board: List[Optional[str]]) -> str:
         # Convert the board to a string representation (e.g. X--OXO--)
@@ -34,6 +34,7 @@ class Agent:
         for i in range(len(board)):  #Get all possible actions by checking for None values in the board
             if board[i] is None:
                 possible_actions.append(i)
+        
         
         if random.random() < self.epsilon:  # We pick a random action with probability epsilon
             return random.choice(possible_actions)
@@ -61,5 +62,6 @@ class Agent:
     def reset(self):
         self.q_table = {}
         self.save_q_table()
+
 
 

@@ -45,3 +45,6 @@ pytest_cache/
 
 # Byte-compiled / optimized / DLL files
 *.so
+
+*.q_table.json
+*.q_table
